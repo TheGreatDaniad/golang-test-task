@@ -1,7 +1,6 @@
-version: '3.6'
+version: "3.6"
 
 services:
-
   rabbitmq:
     image: rabbitmq:3.7-management
     container_name: rabbitmq
@@ -10,11 +9,34 @@ services:
       - "7000:15672"
       - "7001:5672"
     environment:
-      - RABBITMQ_DEFAULT_USER=user
-      - RABBITMQ_DEFAULT_PASS=password
+      - RABBITMQ_DEFAULT_USER=danial
+      - RABBITMQ_DEFAULT_PASS=danial
 
   redis:
     image: redis:5-alpine
     ports:
       - 6379:6379
     restart: always
+
+  api:
+    build: ./cmd/api
+    container_name: api
+    ports:
+      - "8080:8080"
+    depends_on:
+      - rabbitmq
+
+  messagehandler:
+    build: ./cmd/messagehandler
+    container_name: messagehandler
+    depends_on:
+      - rabbitmq
+      - redis
+
+  queryservice:
+    build: ./cmd/queryservice
+    container_name: queryservice
+    ports:
+      - "8081:8081"
+    depends_on:
+      - redis
